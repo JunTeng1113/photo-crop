@@ -1,0 +1,96 @@
+.titleDiv {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  display: flex;
+  align-items: center;
+  width: 500px;
+  height: 120px;
+}
+.mask, 
+.reviewCanvasDiv,
+.reviewCanvasIcon {
+  position: absolute;
+  width: 650px;
+  height: 650px;
+}
+.mask, 
+.reviewCanvasIcon {
+  top: 0;
+  left: 0;
+  object-fit: cover;
+}
+.mask {
+  opacity: 0.7;
+}
+.canvas {
+  position: absolute;
+  width: 650px;
+  height: 650px;
+}
+.reviewCanvasDiv {
+  top: 215px;
+  left: 750px;
+}
+.successCanvasDiv,
+.successCanvasIcon {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+}
+.successCanvasIcon {
+  top: 0;
+  left: 0;
+  object-fit: cover;
+}
+.successCanvasDiv {
+  top: 340px;
+  left: 1450px;
+}
+.buttonDark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000000;
+  color: #FFFFFF;
+}
+.buttonWhite {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #ffffff;
+  color: #000000;
+}
+.editCanvasDiv,
+.selectPhotoDiv,
+.uploadDiv {
+  position: absolute;
+  top: 910px;
+  left: 50px;
+  width: 200px;
+  height: 60px;
+}
+.editCanvasDiv,
+.uploadDiv {
+  left: 265px;
+  width: 180px;
+}
+.editCanvasDiv {
+  top: 215px;
+  left: 50px;
+  width: 650px;
+  height: 650px;
+  overflow: hidden;
+}
+.photoCropDiv {
+  --width: 1920px;
+  position: relative;
+  background-color: #fff;
+  width: var(--width);
+  height: calc(var(--width) * 9 / 16);
+  overflow: hidden;
+  text-align: left;
+  font-size: 50px;
+  color: #000;
+  font-family: Inter;
+}
