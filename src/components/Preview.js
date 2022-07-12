@@ -3,43 +3,43 @@ import styles from "../css/PhotoCrop.module.css";
 import { useSelector } from 'react-redux';
 
 export function updatePreview(props) {
-    const { file } = props;
     const canvas = document.getElementById('preview');
-    const context = canvas.getContext('2d')
-    canvas.width=1200;
-    canvas.height=1200;
+    const ctx = canvas.getContext('2d')
+    canvas.width = 1200;
+    canvas.height = 1200;
     const cw = canvas.width;
     const ch = canvas.height;
-    const image = document.getElementById('mask2');
+    canvas.style.border='1px solid red';
     
-    context.clearRect(0, 0, cw, ch);
-    // 設定預設背景
-    context.fillStyle = "rgba(0, 0, 0, 0.5)";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    // 重設畫布
+    ctx.clearRect(0, 0, cw, ch);
 
-    // 複製Crop畫布
+    // 設定灰底背景
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 複製 Crop 畫布
     const cropCanvas = document.getElementById('cropCanvas');
-    context.drawImage(cropCanvas, 0, 0);
+    ctx.drawImage(cropCanvas, 0, 0);
 
-    // canvas圖片模糊 https://blog.csdn.net/felicity_zll/article/details/109193602
+    // 解決：canvas圖片模糊
+    // https://blog.csdn.net/felicity_zll/article/details/109193602
 
-    // 輸出到第二張圖的結果
-    context.globalCompositeOperation = "destination-out";
-    context.globalAlpha = 1; // 設定透明度
-    context.drawImage(image, 0, 0); // 遮罩
+    // 遮罩與圖片合併，裁剪出內容
+    const image = document.getElementById('mask2');
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.globalAlpha = 1; // 設定透明度
+    ctx.drawImage(image, 0, 0); // 遮罩
 
-    // 填上背景
-    context.globalCompositeOperation = "destination-over";
-    context.fillStyle = "rgba(0, 0, 0, 0.5)";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    // 將內容空白處填上灰底背景
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 const Preview = forwardRef((props, ref) => {
-    const data = useSelector(state => state.reducer);
-    const file = data?.file;
-    
     useEffect(() => {
-        updatePreview({file: file, ref: ref});
+        updatePreview();
     }, )
     return (<>
         <canvas

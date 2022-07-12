@@ -6,37 +6,35 @@ import { updatePreview } from './Preview';
 const Crop = props => {
     const data = useSelector(state => state.reducer);
     const file = data?.file;
-    const canvasRef = useRef(null);
 
     // https://riptutorial.com/html5-canvas/example/18918/dragging-circles---rectangles-around-the-canvas
-    // canvas圖片模糊 https://blog.csdn.net/felicity_zll/article/details/109193602
+    // 解決：canvas圖片模糊
+    // https://blog.csdn.net/felicity_zll/article/details/109193602
     useEffect(() => {
         // canvas related vars
-        var canvas=canvasRef.current;
-        var ctx=canvas.getContext("2d");
-        canvas.width=1200;
-        canvas.height=1200;
-        var cw=canvas.width;
-        var ch=canvas.height;
-        // document.body.appendChild(canvas);
+        const canvas = document.getElementById('cropCanvas');
+        const ctx = canvas.getContext("2d");
+        canvas.width = 1200;
+        canvas.height = 1200;
+        const cw = canvas.width;
+        const ch = canvas.height;
         canvas.style.border='1px solid red';
         // // 設定預設背景
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, cw, ch);
         const img = document.getElementById('crop');
-        const mask = document.getElementById('mask');
         
         // used to calc canvas position relative to window
         function reOffset(){
-            var BB=canvas.getBoundingClientRect();
-            offsetX=BB.left;
-            offsetY=BB.top;        
+            var BB = canvas.getBoundingClientRect();
+            offsetX = BB.left;
+            offsetY = BB.top;        
         }
-        var offsetX,offsetY;
+        var offsetX, offsetY;
         reOffset();
-        window.onscroll=function(e){ reOffset(); }
-        window.onresize=function(e){ reOffset(); }
-        canvas.onresize=function(e){ reOffset(); }
+        window.onscroll = function(e){ reOffset(); }
+        window.onresize = function(e){ reOffset(); }
+        canvas.onresize = function(e){ reOffset(); }
 
         // save relevant information about shapes drawn on the canvas
         var shapes=[];
@@ -47,13 +45,16 @@ const Crop = props => {
 
         // hold the index of the shape being dragged (if any)
         var selectedShapeIndex;
-    
+            
+        // 設定灰底背景
+        const background = {x: 0, y: 0, width: cw, height: ch, color: "rgba(0, 0, 0, 0.5)"};
+        // shapes.push( background );
 
         // load the image
-        var card=new Image();
-        card.onload=function(){
+        var photo = new Image();
+        photo.onload=function(){
             // define one image and save it in the shapes[] array
-            shapes.push( {x:0, y:0, width:1200, height:1200, image:card} );
+            shapes.push( {x:0, y:0, width: cw, height: ch, image: photo } );
             // draw the shapes on the canvas
             drawAll();
             // listen for mouse events
@@ -63,7 +64,7 @@ const Crop = props => {
             canvas.onmouseout=handleMouseOut;
         };
         // put your image src here!
-        card.src=img.src;
+        photo.src = img.src;
 
 
         // given mouse X & Y (mx & my) and shape object
@@ -154,21 +155,28 @@ const Crop = props => {
         // clear the canvas and 
         // redraw all shapes in their current positions
         function drawAll(){
+            
+            // 重設畫布
             ctx.clearRect(0,0,cw,ch);
-            // 設定預設背景
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 繪製圖形
             for(var i=0;i<shapes.length;i++){
                 var shape=shapes[i];
                 if(shape.image){
-                    // it's an image
-                    ctx.drawImage(shape.image,shape.x,shape.y);
+                    ctx.drawImage(shape.image, shape.x, shape.y);
+
+                } else if (shape.width) {
+                    ctx.fillStyle = shape.color;
+                    ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
                 }
             }
-            updatePreview({file: '', ref: document.getElementById('preview')});
+            // 更新預覽畫面
+            updatePreview();
             
-            ctx.globalAlpha = 0.7; // 設定透明度
-            ctx.drawImage(mask, 0, 0); // 遮罩
+            // 放上遮罩圖
+            const mask = document.getElementById('mask');
+            ctx.globalAlpha = 0.7; // 設定透明度為 0.7
+            ctx.drawImage(mask, 0, 0);
         }
     }, );
     
@@ -192,7 +200,6 @@ const Crop = props => {
             <canvas
             id="cropCanvas" 
             className={styles.canvas}
-            ref={canvasRef}
             {...props}
             />
         </div>

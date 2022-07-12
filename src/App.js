@@ -20,7 +20,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<PhotoCrop />} />
+      <Route path="/:userID" element={<PhotoCrop />} />
     </Routes>
   );
 }
