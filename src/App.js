@@ -18,32 +18,6 @@ function App() {
     }
   }, [action]);
 
-  useEffect(() => {
-    let title = "";
-    let metaDescription = "";
-
-    //TODO: Update meta titles and descriptions below
-    switch (pathname) {
-      case "/":
-        title = "";
-        metaDescription = "";
-        break;
-    }
-
-    if (title) {
-      document.title = title;
-    }
-
-    if (metaDescription) {
-      const metaDescriptionTag = document.querySelector(
-        'head > meta[name="description"]'
-      );
-      if (metaDescriptionTag) {
-        metaDescriptionTag.content = metaDescription;
-      }
-    }
-  }, [pathname]);
-
   return (
     <Routes>
       <Route path="/" element={<PhotoCrop />} />

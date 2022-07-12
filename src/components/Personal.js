@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, forwardRef } from 'react';
 import styles from "../css/PhotoCrop.module.css";
-const SuccessCanvas = props => {
+const Personal = props => {
     return (
         <img
         id="personal"
@@ -10,4 +10,4 @@ const SuccessCanvas = props => {
         />
     )
 }
-export default SuccessCanvas;
+export default Personal;

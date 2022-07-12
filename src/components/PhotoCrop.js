@@ -1,10 +1,11 @@
 import { Button } from "@mui/material";
 import styles from "../css/PhotoCrop.module.css";
 import { useDispatch } from 'react-redux';
-import EditCanvas from "./EditCanvas.js";
-import ReviewCanvas from "./ReviewCanvas.js";
-import SuccessCanvas from "./SuccessCanvas.js";
+import EditCanvas from "./Crop.js";
+import ReviewCanvas from "./Preview.js";
+import SuccessCanvas from "./Personal.js";
 import { useSelector } from 'react-redux';
+import { useParams } from "react-router-dom";
 
 import { useEffect, useState, createRef } from "react";
 import { Set } from "../actions/Set.js";
@@ -13,6 +14,7 @@ export const PhotoCrop = () => {
   const dispatch = useDispatch();
   const ref = createRef();
 
+  // Select Photo
   const handleOnChange = (e) => {
     const file = e.target.files[0];
     var reader = new FileReader();
@@ -25,6 +27,7 @@ export const PhotoCrop = () => {
     };
   }
 
+  // Upload
   const handleUpload = () => {
     const canvas = ref.current
     const context = canvas.getContext('2d')
@@ -43,7 +46,7 @@ export const PhotoCrop = () => {
 
     // 儲存至資料庫
     const link = document.createElement('a');
-    link.download = 'download.png';
+    link.download = `123.png`;
     link.href = img;
     link.click();
     
@@ -55,14 +58,17 @@ export const PhotoCrop = () => {
 
   return (
     <div className={styles.photoCropDiv}>
-      <div className={styles.titleDiv}>Title</div>
+      <div className={styles.titleDiv}>Your Personal Photo</div>
       <div className={styles.editCanvasDiv}>
-        <EditCanvas />
+        {/* Crop */}
+        <EditCanvas /> 
       </div>
       <div className={styles.reviewCanvasDiv}>
+        {/* review */}
         <ReviewCanvas ref={ref} />
       </div>
       <div className={styles.successCanvasDiv}>
+        {/* personal */}
         <SuccessCanvas />
       </div>
       <div className={styles.selectPhotoDiv}>
