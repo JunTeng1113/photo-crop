@@ -6,6 +6,11 @@ function Upload(props) {
     const { userID } = props;
     // Upload
     const handleUpload = () => {
+        const newCanvas = document.createElement('canvas');
+        const newContext = newCanvas.getContext('2d');
+        const previewCanvas = document.getElementById('preview');
+        newContext.drawImage(previewCanvas, 0, 0);
+        
         const canvas = document.getElementById('preview');
         const context = canvas.getContext('2d')
         const image = document.getElementById('mask2');
@@ -30,8 +35,17 @@ function Upload(props) {
 
         //無法通過CORS https://blog.huli.tw/2021/02/19/cors-guide-3/
         fetch('https://toysrbooks.com/dev/v0.1/uploadPhotoData.php', {
-            method: 'POST',
-            body: JSON.stringify(postData)
+            body: JSON.stringify(postData), // must match 'Content-Type' header
+            // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            // credentials: 'same-origin', // include, same-origin, *omit
+            // headers: {
+            //     'user-agent': 'Mozilla/4.0 MDN Example',
+            //     'content-type': 'application/json'
+            // },
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            // mode: 'cors', // no-cors, cors, *same-origin
+            // redirect: 'follow', // manual, *follow, error
+            // referrer: 'no-referrer', // *client, no-referrer
         })
         .then(data => {
             // 從資料庫下載圖片
@@ -40,12 +54,14 @@ function Upload(props) {
             link.href = img;
             // link.click();
             
+            console.log(data);
         
             // 顯示圖片
             document.getElementById('personal').src = img;
         })
         .catch(error => {
             console.error(error)
+            console.log(postData);
         });
     }
     return (
