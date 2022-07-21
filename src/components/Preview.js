@@ -14,6 +14,10 @@ export const updatePreview = props => {
     // 重設畫布
     ctx.clearRect(0, 0, cw, ch);
 
+    // 設定灰底背景
+    // ctx.globalCompositeOperation = "destination-over";
+    // ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    // ctx.fillRect(0, 0, cw, ch);
 
     // 複製 Crop 畫布
     const crop = document.getElementById('crop');
@@ -23,24 +27,20 @@ export const updatePreview = props => {
         ctx.drawImage(cropCanvas, 0, 0);
     }
 
-    // 設定灰底背景
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    // ctx.fillRect(0, 0, cw, ch);
 
     // 解決：canvas圖片模糊
     // https://blog.csdn.net/felicity_zll/article/details/109193602
 
     // 遮罩與圖片合併，裁剪出內容
     const image = document.getElementById('mask2');
-    ctx.globalCompositeOperation = "destination-out";
+    // ctx.globalCompositeOperation = "destination-out";
     ctx.globalAlpha = 1; // 設定透明度
     ctx.drawImage(image, 0, 0); // 遮罩
 
     // 將內容空白處填上灰底背景
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(0, 0, cw, ch);
+    // ctx.globalCompositeOperation = "destination-over";
+    // ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    // ctx.fillRect(0, 0, cw, ch);
 }
 
 const Preview = props => {

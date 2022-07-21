@@ -6,42 +6,36 @@ function Upload(props) {
     const { userID } = props;
     // Upload
     const handleUpload = () => {
-        const newCanvas = document.createElement('canvas');
-        const newContext = newCanvas.getContext('2d');
-        const previewCanvas = document.getElementById('preview');
-        newContext.drawImage(previewCanvas, 0, 0);
-        
-        const canvas = document.getElementById('preview');
-        const context = canvas.getContext('2d')
-        const image = document.getElementById('mask2');
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 1200;
+        canvas.height = 1200;
+
+        const pCanvas = document.getElementById('preview');
+        context.drawImage(pCanvas, 0, 0);
     
+        const mask = document.getElementById('mask2');
         context.globalCompositeOperation = "destination-out";
         context.globalAlpha = 1; // 設定透明度
-        context.drawImage(image, 0, 0); // 遮罩
-        const img = canvas.toDataURL('image/png');
-        
-        // 填上背景
-        context.globalCompositeOperation = "destination-over";
-        context.fillStyle = "rgba(0, 0, 0, 0.5)";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-                
-    
+        context.drawImage(mask, 0, 0); // 遮罩
+
+        const resultImage = canvas.toDataURL('image/png');
+
         // 儲存至資料庫
-        const postData = {
-            token: token,
-            user_id: userID,
-            personal_photo: img, // base64
-        }
+        const postData  = new FormData();
+        postData.append('token', token);
+        postData.append('user_id', userID);
+        postData.append('personal_photo', resultImage); // base64
 
         //無法通過CORS https://blog.huli.tw/2021/02/19/cors-guide-3/
         fetch('https://toysrbooks.com/dev/v0.1/uploadPhotoData.php', {
-            body: JSON.stringify(postData), // must match 'Content-Type' header
+            body: postData, // must match 'Content-Type' header
             // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
             // credentials: 'same-origin', // include, same-origin, *omit
-            // headers: {
-            //     'user-agent': 'Mozilla/4.0 MDN Example',
-            //     'content-type': 'application/json'
-            // },
+            headers: {
+                // 'user-agent': 'Mozilla/4.0 MDN Example',
+                'content-type': 'multipart/form-data'
+            },
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             // mode: 'cors', // no-cors, cors, *same-origin
             // redirect: 'follow', // manual, *follow, error
@@ -51,18 +45,19 @@ function Upload(props) {
             // 從資料庫下載圖片
             const link = document.createElement('a');
             link.download = `${userID}.png`;
-            link.href = img;
+            link.href = resultImage;
             // link.click();
             
             console.log(data);
         
             // 顯示圖片
-            document.getElementById('personal').src = img;
+            // document.getElementById('personal').src = resultImage;
         })
         .catch(error => {
             console.error(error)
             console.log(postData);
         });
+        document.getElementById('personal').src = resultImage;
     }
     return (
         <Button
