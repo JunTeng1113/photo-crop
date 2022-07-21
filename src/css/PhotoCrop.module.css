@@ -1,95 +1,78 @@
-.titleDiv {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-  display: flex;
-  align-items: center;
-  width: 500px;
-  height: 120px;
+.indent {
+    margin-left: clamp(20px, 2vw, 2vw);
 }
-.mask, 
-.reviewCanvasDiv,
-.reviewCanvasIcon {
-  position: absolute;
-  width: 650px;
-  height: 650px;
+
+.title {
+    font-size: clamp(20px, 2vw, 2vw);
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
-.mask, 
-.reviewCanvasIcon {
-  top: 0;
-  left: 0;
-  object-fit: cover;
+
+.canvas-container {
+    margin-right: clamp(5px, 5vw, 5vw);
 }
-.mask {
-  opacity: 0.7;
+
+.canvas-flex {
+    display: flex;
 }
+
 .canvas {
-  position: absolute;
-  width: 650px;
-  height: 650px;
+    display: inline-block;
+    position: relative;
+    border: 1px solid #f00;
 }
-.reviewCanvasDiv {
-  top: 215px;
-  left: 750px;
+
+.canvas-large {
+    width: clamp(300px, 30vw, 30vw);
+    height: clamp(300px, 30vw, 30vw);
 }
-.successCanvasDiv,
-.successCanvasIcon {
-  position: absolute;
-  width: 400px;
-  height: 400px;
+
+.canvas-small {
+    top: clamp(50px, 5vw, 5vw);
+    width: clamp(200px, 20vw, 20vw);
+    height: clamp(200px, 20vw, 20vw);
 }
-.successCanvasIcon {
-  top: 0;
-  left: 0;
-  object-fit: cover;
+
+@media (max-width: 900px) {
+    .canvas-flex {
+        flex-direction: column;
+    }
+    .canvas-container {
+        margin-bottom: clamp(5px, 5vw, 5vw);
+    }
 }
-.successCanvasDiv {
-  top: 340px;
-  left: 1450px;
+
+.canvas-bar {
+    width: clamp(300px, 30vw, 30vw);
+    height: clamp(2px, 2vw, 2vw);
+    border: 1px solid #000;
 }
-.buttonDark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #000000;
-  color: #FFFFFF;
+
+.row {
+    display: flex;
+    margin-top: clamp(2px, 2vw, 2vw);
 }
-.buttonWhite {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #ffffff;
-  color: #000000;
+
+.button {
+    display: inline-block;
+    width: clamp(120px, 12vw, 12vw);
+    height: clamp(20px, 2vw, 2vw);
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: clamp(12px, 1.2vw, 1.2vw);
+    margin-left: clamp(5px, 0.5vw, 0.5vw);
+    margin-right: clamp(5px, 0.5vw, 0.5vw);
 }
-.editCanvasDiv,
-.selectPhotoDiv,
-.uploadDiv {
-  position: absolute;
-  top: 910px;
-  left: 50px;
-  width: 200px;
-  height: 60px;
+
+.bg-dark {
+    background-color: #000;
 }
-.editCanvasDiv,
-.uploadDiv {
-  left: 265px;
-  width: 180px;
-}
-.editCanvasDiv {
-  top: 215px;
-  left: 50px;
-  width: 650px;
-  height: 650px;
-}
-.photoCropDiv {
-  --width: 1920px;
-  position: relative;
-  background-color: #fff;
-  width: var(--width);
-  height: calc(var(--width) * 9 / 16);
-  overflow: hidden;
-  text-align: left;
-  font-size: 50px;
-  color: #000;
-  font-family: Inter;
+
+.color-white {
+    color: #fff;
 }

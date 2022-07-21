@@ -61,8 +61,7 @@ function Upload(props) {
     }
     return (
         <Button
-            className={styles.buttonDark}
-            sx={{ width: 180 }}
+            className={`${styles['button']} ${styles['bg-dark']} ${styles['color-white']}`}
             variant="contained"
             onClick={handleUpload}
         >

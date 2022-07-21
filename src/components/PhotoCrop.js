@@ -5,6 +5,7 @@ import Crop from "./Crop.js";
 import Preview from "./Preview.js";
 import Personal from "./Personal.js";
 import SelectPhoto from "./SelectPhoto.js";
+import CropSlider from "./CropSlider.js";
 import Upload from "./Upload.js";
 import { useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
@@ -61,25 +62,35 @@ export const PhotoCrop = () => {
     src="./face_outline_outside.png"
     hidden
     /> */}
-    <div className={styles.photoCropDiv}>
-      <div className={styles.titleDiv}>Your Personal Photo</div>
-      <div className={styles.editCanvasDiv}>
-        {/* Crop */}
-        <Crop /> 
-      </div>
-      <div className={styles.reviewCanvasDiv}>
-        {/* review */}
-        <Preview />
-      </div>
-      <div className={styles.successCanvasDiv}>
-        {/* personal */}
-        <Personal />
-      </div>
-      <div className={styles.selectPhotoDiv}>
-        <SelectPhoto />
-      </div>
-      <div className={styles.uploadDiv}>
-        <Upload userID={userID} />
+    <div className={styles['indent']}>
+      <div className={styles['title']}>Your Personal Photo</div>
+      <div className={styles['indent']}>
+        <div className={styles['canvas-flex']}>
+          <div className={styles['canvas-container']}>
+            <div className={`${styles['canvas']} ${styles['canvas-large']}`}>
+                <Crop />
+            </div>
+            <div className={styles['canvas-bar']} hidden>
+                <CropSlider />
+            </div>
+          </div>
+          <div className={styles['canvas-container']}>
+            <div className={`${styles['canvas']} ${styles['canvas-large']}`}>
+                <Preview />
+            </div>
+          </div>
+          <div className={styles['canvas-container']}>
+            <div className={`${styles['canvas']} ${styles['canvas-small']}`}>
+                <Personal />
+            </div>
+          </div>
+        </div>
+        <div className={styles['row']}>
+            <SelectPhoto />
+            <Upload userID={userID} />
+            {/* <div className={styles['button']}>select photo</div>
+            <div className={styles['button']}>upload</div> */}
+        </div>
       </div>
     </div>
   </>);

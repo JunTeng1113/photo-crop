@@ -18,8 +18,7 @@ function SelectPhoto(props) {
     }
     return (
         <Button
-            className={styles.buttonWhite}
-            sx={{ width: 200 }}
+            className={styles.button}
             variant="outlined"
             component="label"
         >

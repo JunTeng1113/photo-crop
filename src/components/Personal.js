@@ -9,7 +9,7 @@ const Personal = props => {
     return (
         <img
         id="personal"
-        className={styles.successCanvasIcon}
+        style={{width: '100%', height: '100%'}}
         alt=""
         />
     )

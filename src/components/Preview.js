@@ -9,20 +9,22 @@ export const updatePreview = props => {
     canvas.height = 1200;
     const cw = canvas.width;
     const ch = canvas.height;
-    canvas.style.border='1px solid red';
     
     // 重設畫布
     ctx.clearRect(0, 0, cw, ch);
 
     // 設定灰底背景
     // ctx.globalCompositeOperation = "destination-over";
-    // ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    // ctx.fillRect(0, 0, cw, ch);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(0, 0, cw, ch);
 
     // 複製 Crop 畫布
     const crop = document.getElementById('crop');
     const file = crop.src.split('/').pop();
     if (file !== 'null') {
+        // 重設畫布
+        ctx.clearRect(0, 0, cw, ch);
+        
         const cropCanvas = document.getElementById('cropCanvas');
         ctx.drawImage(cropCanvas, 0, 0);
     }
@@ -50,12 +52,11 @@ const Preview = props => {
     return (<>
         <canvas
         id="preview"
-        className={styles.canvas}
+        style={{width: '100%', height: '100%'}}
         {...props}
         />
         <img
         id="mask2"
-        className={styles.reviewCanvasIcon}
         alt=""
         src="./face_outline_inside.png"
         hidden

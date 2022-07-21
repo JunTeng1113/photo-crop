@@ -42,7 +42,6 @@ const Crop = props => {
         canvas.height = 1200;
         const cw = canvas.width;
         const ch = canvas.height;
-        canvas.style.border='1px solid red';
         // // 設定預設背景
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         ctx.fillRect(0, 0, cw, ch);
@@ -284,6 +283,7 @@ const Crop = props => {
             <canvas
             id="cropCanvas" 
             className={styles.canvas}
+            style={{width: '100%', height: '100%'}}
             {...props}
             />
         </div>
