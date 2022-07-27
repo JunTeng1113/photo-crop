@@ -20,44 +20,38 @@ function Upload(props) {
         context.drawImage(mask, 0, 0); // 遮罩
 
         const resultImage = canvas.toDataURL('image/png');
-
+        
         // 儲存至資料庫
         const postData  = new FormData();
         postData.append('token', token);
         postData.append('user_id', userID);
-        postData.append('personal_photo', resultImage); // base64
+        postData.append('personal_photo', resultImage.split(',')[1]); // base64
 
         //無法通過CORS https://blog.huli.tw/2021/02/19/cors-guide-3/
         fetch('https://toysrbooks.com/dev/v0.1/uploadPhotoData.php', {
             body: postData, // must match 'Content-Type' header
             // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
             // credentials: 'same-origin', // include, same-origin, *omit
-            headers: {
-                // 'user-agent': 'Mozilla/4.0 MDN Example',
-                'content-type': 'multipart/form-data'
-            },
+            // headers: {
+            //     // 'user-agent': 'Mozilla/4.0 MDN Example',
+            //     'content-type': 'multipart/form-data'
+            // },
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             // mode: 'cors', // no-cors, cors, *same-origin
             // redirect: 'follow', // manual, *follow, error
             // referrer: 'no-referrer', // *client, no-referrer
         })
-        .then(data => {
-            // 從資料庫下載圖片
-            const link = document.createElement('a');
-            link.download = `${userID}.png`;
-            link.href = resultImage;
-            // link.click();
-            
-            console.log(data);
-        
-            // 顯示圖片
-            // document.getElementById('personal').src = resultImage;
+        .then(response => {
+            return response.json();
+        })
+        .then(response => {
+            // 從回傳值取得圖片，顯示圖片
+            document.getElementById('personal').src = response['photo_url'];
         })
         .catch(error => {
             console.error(error)
             console.log(postData);
         });
-        document.getElementById('personal').src = resultImage;
     }
     return (
         <Button

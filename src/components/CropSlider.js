@@ -2,33 +2,35 @@ import React, { useRef, useEffect, useState } from 'react';
 import Slider from '@mui/material/Slider';
 import styles from "../css/PhotoCrop.module.css";
 import { useSelector } from 'react-redux';
-import { updatePreview } from './Preview';
+import { useDispatch } from 'react-redux';
+import { Set } from "../actions/Set.js";
 
 const marks = [
     {
         value: 0.5,
         label: '50%'
     }, {
+        value: 1.0,
+        label: '100%'
+    }, {
+        value: 1.5,
+        label: '150%'
+    }, {
         value: 2.0,
         label: '200%'
+    }, {
+        value: 3.0,
+        label: '300%'
     }
 ]
 
 const CropSlider = props => {
+    const dispatch = useDispatch();
     const data = useSelector(state => state.reducer);
-    const file = data?.file;
-    const [loading, setLoading] = useState(false);
-    const [tSize, setTSize] = useState(1.0);
+    const size = data?.size;
 
-    useEffect(() => {
-        setLoading(true);
-    }, []);
-
-    function handleChangeSize(e, value) {
-        if (tSize !== value) {
-            console.log(value);
-            setTSize(value);
-        }
+    function handleChangeSize(value) {
+        dispatch(Set({size: value}));
     }
 
     return ( <>
@@ -36,10 +38,10 @@ const CropSlider = props => {
             defaultValue={1.0}
             step={0.1}
             min={0.5}
-            max={2.0}
-            value={tSize}
+            max={3.0}
+            value={size}
             valueLabelDisplay="auto"
-            onChange={handleChangeSize}
+            onChange={(e) => handleChangeSize(e.target.value)}
             marks={marks}
             valueLabelFormat={(value) => {return `${(value * 100).toFixed(0)}%`}}
         />

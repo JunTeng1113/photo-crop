@@ -5,6 +5,7 @@ import Crop from "./Crop.js";
 import Preview from "./Preview.js";
 import Personal from "./Personal.js";
 import SelectPhoto from "./SelectPhoto.js";
+import CropSettings from "./CropSettings.js";
 import CropSlider from "./CropSlider.js";
 import Upload from "./Upload.js";
 import { useSelector } from 'react-redux';
@@ -47,21 +48,6 @@ export const PhotoCrop = () => {
   // }, )
 
   return (<>
-    {/* <canvas
-    id="merge"
-    />
-    <img
-    id="inside"
-    alt=""
-    src="./face_outline_inside.png"
-    hidden
-    />
-    <img
-    id="outside"
-    alt=""
-    src="./face_outline_outside.png"
-    hidden
-    /> */}
     <div className={styles['indent']}>
       <div className={styles['title']}>Your Personal Photo</div>
       <div className={styles['indent']}>
@@ -70,8 +56,13 @@ export const PhotoCrop = () => {
             <div className={`${styles['canvas']} ${styles['canvas-large']}`}>
                 <Crop />
             </div>
-            <div className={styles['canvas-bar']} hidden>
+            <div className={styles['canvas-bar']}>
+              <div className={styles['row']}>
+                <CropSettings />
+              </div>
+              <div className={styles['row']}>
                 <CropSlider />
+              </div>
             </div>
           </div>
           <div className={styles['canvas-container']}>
@@ -88,8 +79,6 @@ export const PhotoCrop = () => {
         <div className={styles['row']}>
             <SelectPhoto />
             <Upload userID={userID} />
-            {/* <div className={styles['button']}>select photo</div>
-            <div className={styles['button']}>upload</div> */}
         </div>
       </div>
     </div>

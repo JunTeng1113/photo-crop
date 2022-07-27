@@ -9,7 +9,7 @@
 }
 
 .canvas-container {
-    margin-right: clamp(5px, 5vw, 5vw);
+    margin-right: clamp(50px, 5vw, 5vw);
 }
 
 .canvas-flex {
@@ -19,7 +19,7 @@
 .canvas {
     display: inline-block;
     position: relative;
-    border: 1px solid #f00;
+    border: clamp(1px, 0.1vw, 0.1vw)  solid #f00;
 }
 
 .canvas-large {
@@ -38,28 +38,43 @@
         flex-direction: column;
     }
     .canvas-container {
-        margin-bottom: clamp(5px, 5vw, 5vw);
+        margin-bottom: clamp(50px, 5vw, 5vw);
     }
 }
 
+.rotateBtn {
+    width: clamp(20px, 2vw, 2vw);
+    height: clamp(20px, 2vw, 2vw);
+    padding-left: 0px;
+    padding-right: 0px;
+    border: clamp(1px, 0.1vw, 0.1vw) solid #000;
+}
+
+.rotateImg {
+    width: 100%;
+    height: 100%;
+}
+
+
 .canvas-bar {
+    margin-top: clamp(10px, 1vw, 1vw);
+    margin-bottom: clamp(10px, 1vw, 1vw);
     width: clamp(300px, 30vw, 30vw);
-    height: clamp(2px, 2vw, 2vw);
-    border: 1px solid #000;
+    height: clamp(40px, 4vw, 4vw);
 }
 
 .row {
     display: flex;
-    margin-top: clamp(2px, 2vw, 2vw);
+    margin-top: clamp(10px, 1vw, 1vw);
 }
 
 .button {
     display: inline-block;
     width: clamp(120px, 12vw, 12vw);
     height: clamp(20px, 2vw, 2vw);
-    padding-left: 5px;
-    padding-right: 5px;
-    border: 1px solid #000;
+    padding-left: clamp(5px, 0.5vw, 0.5vw);
+    padding-right: clamp(5px, 0.5vw, 0.5vw);
+    border: clamp(1px, 0.1vw, 0.1vw)  solid #000;
     display: flex;
     justify-content: center;
     align-items: center;

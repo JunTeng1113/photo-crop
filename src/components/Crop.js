@@ -1,303 +1,259 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Slider from '@mui/material/Slider';
 import styles from "../css/PhotoCrop.module.css";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { updatePreview } from './Preview';
-
-const marks = [
-    {
-        value: 0.5,
-        label: '50%'
-    }, {
-        value: 2.0,
-        label: '200%'
-    }
-]
+import { Set } from "../actions/Set.js";
+import { Increment } from "../actions/Increment.js";
 
 const Crop = props => {
+    const dispatch = useDispatch();
     const data = useSelector(state => state.reducer);
+    const x = data?.x;
+    const y = data?.y;
     const file = data?.file;
-    const [loading, setLoading] = useState(false);
-    const [tSize, setTSize] = useState(1.0);
+    const size = data?.size;
+    const rotate = data?.rotate;
+
+    var offsetX=0, offsetY=0;
+    var shape= {x: x, y: y, image: file, rotate: rotate, size: size};
+    var isDragging=false;
+    var startX,startY;
+    
+    var canvas;
+    var ctx;
+    var cw, ch;
 
     useEffect(() => {
-        setLoading(true);
-    }, []);
-
-    function handleChangeSize(e, value) {
-        if (tSize !== value) {
-            console.log(value);
-            setTSize(value);
-        }
-    }
-
-    useEffect(() => {
-        // https://riptutorial.com/html5-canvas/example/18918/dragging-circles---rectangles-around-the-canvas
-        // 解決：canvas圖片模糊
-        // https://blog.csdn.net/felicity_zll/article/details/109193602
-        // canvas related vars
-        const canvas = document.getElementById('cropCanvas');
-        const ctx = canvas.getContext("2d");
-        canvas.width = 1200;
-        canvas.height = 1200;
-        const cw = canvas.width;
-        const ch = canvas.height;
-        // // 設定預設背景
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, cw, ch);
-        
+        canvas = document.getElementById('cropCanvas');
         // used to calc canvas position relative to window
         function reOffset(){
             var BB = canvas.getBoundingClientRect();
             offsetX = BB.left;
-            offsetY = BB.top;        
+            offsetY = BB.top;    
         }
-        var offsetX, offsetY;
         reOffset();
         window.onscroll = function(e){ reOffset(); }
         window.onresize = function(e){ reOffset(); }
         canvas.onresize = function(e){ reOffset(); }
-    
-        // save relevant information about shapes drawn on the canvas
-        var shapes=[];
-    
-        // drag related vars
-        var isDragging=false;
-        var startX,startY;
-    
-        // hold the index of the shape being dragged (if any)
-        var selectedShapeIndex;
-    
-        // 縮放比例
-        var size = 1.0;
-    
+    }, []);
+
+
+    useEffect(() => {
+        if (file === null) { return; }
+        const imageCanvas = document.getElementById('imageCanvas');
+        const ctx1 = imageCanvas.getContext('2d');
+        const crop1 = document.getElementById('crop'); // 取得原始圖片
+        imageCanvas.width = 1200;
+        imageCanvas.height = 1200;
+        cw = imageCanvas.width;
+        ch = imageCanvas.height;
+
+        // 讓圖片可以按原比例呈現
+        const ratio = crop1.width / crop1.height;
+        var width, height;
+        if (ratio >= 1) {
+            width = cw;
+            height = ch / ratio;
+        } else {
+            width = cw * ratio;
+            height = ch;
+        }
+        const offsetX = (cw / 2) - (width / 2);
+        const offsetY = (cw / 2) - (height / 2);
+
+        // 將圖片旋轉
+        ctx1.save();
+        ctx1.translate(imageCanvas.width / 2, imageCanvas.height / 2);
+        ctx1.rotate(rotate * Math.PI / 180);
+        ctx1.translate(-(imageCanvas.width / 2), -(imageCanvas.height / 2));
+        // ctx1.drawImage(crop1, 0, 0, imageCanvas.width, imageCanvas.height);
+        ctx1.drawImage(crop1, 0, 0, crop1.width, crop1.height, 
+            offsetX, offsetY, width, height);
+        ctx1.restore();
+
+        // 旋轉後的原始圖片
+        const crop2 = document.getElementById('crop2');
+        crop2.src = imageCanvas.toDataURL('image/png');
+    }, [file, rotate]);
+
+    useEffect(() => {
+        canvas = document.getElementById('cropCanvas');
+        ctx = canvas.getContext("2d");
+        canvas.width = 1200;
+        canvas.height = 1200;
+        cw = canvas.width;
+        ch = canvas.height;
+        // https://riptutorial.com/html5-canvas/example/18918/dragging-circles---rectangles-around-the-canvas
+        // 解決：canvas圖片模糊
+        // https://blog.csdn.net/felicity_zll/article/details/109193602
+
+        // // 設定預設背景
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, cw, ch);
         // load the image
-        const img = document.getElementById('crop');
+        const img = document.getElementById('crop2');
         var photo = new Image();
         photo.onload=function(){
+
             const iWidth = img.width;
             const iHeight = img.height;
-            // define one image and save it in the shapes[] array
-            shapes.push( {x: 0, y: 0, width: iWidth, height: iHeight, image: photo} );
-            // draw the shapes on the canvas
+            
+            shape = {x: x, y: y, width: iWidth, height: iHeight, image: photo, rotate: rotate, size: size};
+            
             drawAll();
             // listen for mouse events
             canvas.onmousedown=handleMouseDown;
             canvas.onmousemove=handleMouseMove;
             canvas.onmouseup=handleMouseUp;
             canvas.onmouseout=handleMouseOut;
+            canvas.onmousewheel=handleMouseWheel;
         };
         // put your image src here!
         photo.src = img.src;
     
+    }, [file, rotate, size])
     
-        // 已移除
-        // given mouse X & Y (mx & my) and shape object
-        // return true/false whether mouse is inside the shape
-        function isMouseInShape(mx,my,shape){
-            // is this shape an image?
-            if(shape.image){
-                // this is a rectangle
-                var rLeft=shape.x;
-                var rRight=shape.x+shape.width;
-                var rTop=shape.y;
-                var rBott=shape.y+shape.height;
-                // math test to see if mouse is inside image
-                if( mx>rLeft && mx<rRight && my>rTop && my<rBott){
-                    return(true);
-                }
-            }
-            // the mouse isn't in any of this shapes
-            return(false);
-        }
-    
-        function handleMouseDown(e){
-            // tell the browser we're handling this event
-            e.preventDefault();
-            e.stopPropagation();
-            // calculate the current mouse position
-            startX=parseInt(e.clientX-offsetX);
-            startY=parseInt(e.clientY-offsetY);
+    function drawAll(){
+        // 重設畫布
+        ctx.clearRect(0,0,cw,ch);
 
-            // test mouse position against all shapes
-            // post result if mouse is in a shape
-            for(var i=0;i<shapes.length;i++){
-                // if(isMouseInShape(startX,startY,shapes[i])){
-                //     // the mouse is inside this shape
-                //     // select this shape
-                //     selectedShapeIndex=i;
-                //     // set the isDragging flag
-                //     isDragging=true;
-                //     // and return (==stop looking for 
-                //     //     further shapes under the mouse)
-                //     return;
-                // }
-                if (shapes[i].image) {
-                    // the mouse is inside this shape
-                    // select this shape
-                    selectedShapeIndex=0;
-                    // set the isDragging flag
-                    isDragging=true;
-                    return;
-                }
-            }
+        // 繪製圖形
+        const ratio = shape.width / shape.height;
+                
+        // 讓圖片可以按原比例呈現
+        var width, height;
+        if (ratio >= 1) {
+            width = cw * shape.size;
+            height = ch * shape.size / ratio;
+        } else {
+            width = cw * shape.size * ratio;
+            height = ch * shape.size; 
+        }
+        const offsetX = (cw / 2) - (width / 2);
+        const offsetY = (cw / 2) - (height / 2);
+        ctx.drawImage(shape.image, 0, 0, shape.width, shape.height, 
+            shape.x + offsetX, shape.y + offsetY, width, height);
+        // 更新預覽畫面
+        updatePreview();
+        
+        // 放上遮罩圖
+        const mask = document.getElementById('mask');
+        ctx.globalAlpha = 0.7; // 設定透明度為 0.7
+        ctx.drawImage(mask, 0, 0, cw, ch);
 
+        ctx.globalAlpha = 1; // 設定透明度為 1
+    }
+
+    function handleMouseWheel(e) {
+        if (!shape.image) { return; }
+        // 取消原事件處理
+        e.preventDefault();
+        e.stopPropagation();
+
+        const max = 3.0;
+        const step = 0.1;
+        const min = 0.5;
+        var value = e.deltaY < 0 ? Math.min(size + step, max) : Math.max(min, size - step);
+
+        handleChangeSize(value);
+    }
+    
+    function handleChangeSize(value) {
+        dispatch(Set({size: value}));
+    }
+
+    function handleMouseDown(e){
+        // 取消原事件處理
+        e.preventDefault();
+        e.stopPropagation();
+        // 計算目前鼠標位置
+        startX=parseInt(e.clientX-offsetX);
+        startY=parseInt(e.clientY-offsetY);
+
+        if (shape.image) {
+            // 當鼠標在畫布中，設置為正在拖動
+            isDragging=true;
+            return;
         }
+
+    }
     
-        function handleMouseUp(e){
-            // return if we're not dragging
-            if(!isDragging){return;}
-            // tell the browser we're handling this event
-            e.preventDefault();
-            e.stopPropagation();
-            // the drag is over -- clear the isDragging flag
-            isDragging=false;
-        }
-    
-        function handleMouseOut(e){
-            // return if we're not dragging
-            if(!isDragging){return;}
-            // tell the browser we're handling this event
-            e.preventDefault();
-            e.stopPropagation();
-            // the drag is over -- clear the isDragging flag
-            isDragging=false;
-        }
-    
-        function handleMouseMove(e){
-            // return if we're not dragging
-            if(!isDragging){return;}
-            // tell the browser we're handling this event
-            e.preventDefault();
-            e.stopPropagation();
-            // calculate the current mouse position         
-            var mouseX=parseInt(e.clientX-offsetX);
-            var mouseY=parseInt(e.clientY-offsetY);
-            // how far has the mouse dragged from its previous mousemove position?
-            var dx=mouseX-startX;
-            var dy=mouseY-startY;
-            // move the selected shape by the drag distance
-            var selectedShape=shapes[selectedShapeIndex];
-            selectedShape.x+=dx;
-            selectedShape.y+=dy;
-            // clear the canvas and redraw all shapes
-            drawAll();
-            // update the starting drag position (== the current mouse position)
-            startX=mouseX;
-            startY=mouseY;
-        }
-        canvas.addEventListener("mousewheel",function (e) {
-            if (e.deltaY < 0) { // 滾輪放大
-                for(var i = 0; i < shapes.length; i++){
-                    if(shapes[i].image) {
-                        const max = 2.0;
-                        const step = 0.1;
-                        size = Math.min(size + step, max);
-                        setTSize(size);
-                        // setSize(Math.min(size + step, max));
-                    }
-                }
-            } else if (e.deltaY > 0) { // 滾輪縮小
-                for(var i = 0; i < shapes.length; i++){
-                    if(shapes[i].image) {
-                        const min = 0.5;
-                        const step = 0.1;
-                        size = Math.max(min, size - step);
-                        setTSize(size);
-                        // setSize(Math.max(min, size - step));
-                    }
-                }
-            }
-            drawAll();
-            // if (e.originalEvent.wheelDelta>0 && w<max_w){  // 向上滚动放大但不超出最大宽度
-            //     w+=dw;v+=10;
-            //     img.width(Math.max(w,mask_w));range.val(v);  //  设置滑动条联动
-            //     checkArea(img);
-            // }else if (e.originalEvent.wheelDelta<0 && w>min_w){  
-            //     w-=dw;v-=10;
-            //     img.width(Math.max(w,mask_w));range.val(v);
-            //     checkArea(img);
-            // }
-        })
-        // clear the canvas and 
-        // redraw all shapes in their current positions
-        function drawAll(){
-            
-            // 重設畫布
-            ctx.clearRect(0,0,cw,ch);
-    
-            // 繪製圖形
-            for(var i=0;i<shapes.length;i++){
-                var shape=shapes[i];
-                if(shape.image){
-                    const ratio = shape.width / shape.height;
-                    
-                    // 讓圖片可以按原比例呈現
-                    var width, height;
-                    if (ratio >= 1) {
-                        width = cw * size;
-                        height = ch * size / ratio;
-                    } else {
-                        width = cw * size * ratio;
-                        height = ch * size; 
-                    }
-                    const offsetX = (cw / 2) - (width / 2);
-                    const offsetY = (cw / 2) - (height / 2);
-                    ctx.drawImage(shape.image, 0, 0, shape.width, shape.height, 
-                        shape.x + offsetX, shape.y + offsetY, width, height);
-    
-                } else if (shape.width) {
-                    ctx.fillStyle = shape.color;
-                    ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
-                }
-            }
-            // 更新預覽畫面
-            updatePreview();
-            
-            // 放上遮罩圖
-            const mask = document.getElementById('mask');
-            ctx.globalAlpha = 0.7; // 設定透明度為 0.7
-            ctx.drawImage(mask, 0, 0, cw, ch);
-    
-            ctx.globalAlpha = 1; // 設定透明度為 1
-        }
-    }, [loading, file])
-    
-    
+    function handleMouseMove(e){
+        // 如果不是在畫布中就取消處理
+        if(!isDragging){return;}
+        // 取消原事件處理
+        e.preventDefault();
+        e.stopPropagation();
+        // 計算目前鼠標位置
+        var mouseX=parseInt(e.clientX-offsetX);
+        var mouseY=parseInt(e.clientY-offsetY);
+        // how far has the mouse dragged from its previous mousemove position?
+        var dx=mouseX-startX;
+        var dy=mouseY-startY;
+
+        handlePositionChange({x: dx, y: dy});
+        shape.x+=dx;
+        shape.y+=dy;
+        
+        drawAll();
+        // update the starting drag position (== the current mouse position)
+        startX=mouseX;
+        startY=mouseY;
+    }
+    function handlePositionChange(data) {
+        dispatch(Increment(data));
+    }
+
+    function handleMouseUp(e){
+        // 如果不是在畫布中就取消處理
+        if(!isDragging){return;}
+        // 取消原事件處理
+        e.preventDefault();
+        e.stopPropagation();
+        // 放開滑鼠，結束拖動事件
+        isDragging=false;
+    }
+
+    function handleMouseOut(e){
+        // 如果不是在畫布中就取消處理
+        if(!isDragging){return;}
+        // 取消原事件處理
+        e.preventDefault();
+        e.stopPropagation();
+        // 放開滑鼠，結束拖動事件
+        isDragging=false;
+    }
+
     return ( <>
         <div style={{width: '100%', height: '100%'}}>
             <img
             id="crop"
-            className={styles.reviewCanvasIcon}
             alt=""
             src={`${file}`}
             hidden
             />
             <img
             id="mask"
-            className={styles.mask}
             alt=""
             src="./face_outline_outside.png"
             hidden
             />
             <canvas
             id="cropCanvas" 
-            className={styles.canvas}
             style={{width: '100%', height: '100%'}}
             {...props}
             />
+            <canvas
+            id="imageCanvas" 
+            hidden
+            />
+            <img
+            id="crop2"
+            alt=""
+            hidden
+            />
         </div>
-        <Slider
-            defaultValue={1.0}
-            step={0.1}
-            min={0.5}
-            max={2.0}
-            value={tSize}
-            valueLabelDisplay="auto"
-            onChange={handleChangeSize}
-            marks={marks}
-            valueLabelFormat={(value) => {return `${(value * 100).toFixed(0)}%`}}
-        />
     </>);
 }
 export default Crop;
