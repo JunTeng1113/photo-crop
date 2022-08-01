@@ -58,7 +58,7 @@ const Preview = props => {
         <img
         id="mask2"
         alt=""
-        src="./face_outline_inside.png"
+        src="./crop/face_outline_inside.png"
         hidden
         />
     </>)

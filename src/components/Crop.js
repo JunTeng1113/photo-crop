@@ -236,7 +236,7 @@ const Crop = props => {
             <img
             id="mask"
             alt=""
-            src="./face_outline_outside.png"
+            src="./crop/face_outline_outside.png"
             hidden
             />
             <canvas

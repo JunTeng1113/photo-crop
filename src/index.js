@@ -4,7 +4,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import { store } from "./model/store.js";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import {
   CssBaseline,
   ThemeProvider,
@@ -15,7 +15,7 @@ import {
 const theme = createTheme();
 
 ReactDOM.render(
-  <BrowserRouter>
+  <HashRouter basename="/">
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -24,7 +24,7 @@ ReactDOM.render(
         </Provider>
       </ThemeProvider>
     </StyledEngineProvider>
-  </BrowserRouter>,
+  </HashRouter>,
   document.getElementById("root")
 );
 

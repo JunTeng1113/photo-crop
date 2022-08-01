@@ -20,13 +20,13 @@ export default function CropSettings(props) {
             className={styles.rotateBtn}
             onClick={(e) => handleRotate(-5)}
         >
-            <input type='image' className={styles.rotateImg} alt='' src='./rotate-left.png'></input>
+            <input type='image' className={styles.rotateImg} alt='' src='./crop/rotate-left.png'></input>
         </button>
         <button 
             className={styles.rotateBtn}
             onClick={(e) => handleRotate(5)}
         >
-            <input type='image' className={styles.rotateImg} alt='' src='./rotate-right.png'></input>
+            <input type='image' className={styles.rotateImg} alt='' src='./crop/rotate-right.png'></input>
         </button>
         <button 
             className={styles.rotateBtn}
