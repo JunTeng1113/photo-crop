@@ -2,7 +2,7 @@
     "name": "photocrop",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://junteng1113.github.io/",
+    "homepage": "https://junteng1113.github.io/photo-crop/",
     "dependencies": {
         "@emotion/react": "^11.7.1",
         "@emotion/styled": "^11.6.0",
