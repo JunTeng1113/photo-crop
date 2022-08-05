@@ -13,7 +13,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Link to="/crop/:userID">Goto PhotoCrop</Link>} />
+      <Route path="/" element={<Link to="/crop/1">Goto PhotoCrop</Link>} />
       <Route path="/crop/:userID" element={<PhotoCrop />} />
     </Routes>
   );
