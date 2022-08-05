@@ -11,16 +11,14 @@ const initState = {
 const reducer = (state = initState, action) => {
     const { type, payload } = action;
     switch (type) {
-        case "set": {
+        case "setData": {
             const { data } = payload;
             return {...state, ...data};
         }
-        case "increment": {
+        case "positionOffest": {
             const { data } = payload;
             data.x += state.x
             data.y += state.y
-            console.log({state})
-            console.log({data})
             return {...state, ...data};
         }
         default: {

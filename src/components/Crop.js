@@ -1,10 +1,8 @@
-import React, { useRef, useEffect, useState } from 'react';
-import Slider from '@mui/material/Slider';
-import styles from "../css/PhotoCrop.module.css";
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updatePreview } from './Preview';
-import { Set } from "../actions/Set.js";
-import { Increment } from "../actions/Increment.js";
+import { SetData } from "../actions/SetData.js";
+import { PositionOffest } from "../actions/PositionOffest.js";
 
 const Crop = props => {
     const dispatch = useDispatch();
@@ -15,142 +13,135 @@ const Crop = props => {
     const size = data?.size;
     const rotate = data?.rotate;
 
-    var offsetX=0, offsetY=0;
-    var shape= {x: x, y: y, image: file, rotate: rotate, size: size};
-    var isDragging=false;
-    var startX,startY;
+    var offsetX = 0, offsetY = 0; // 定義畫布在視窗的位置
+    var crop_image_parameters = {x: x, y: y, imageFile: file, rotate: rotate, size: size};
+    var is_dragging = false;
+    var startX, startY; // 定義滑鼠在畫布的位置
     
-    var canvas;
-    var ctx;
-    var cw, ch;
+    var crop_canvas;
+    var crop_canvas_context;
+    var crop_canvas_width, crop_canvas_height;
 
+    // 取得畫布在視窗的位置
     useEffect(() => {
-        canvas = document.getElementById('cropCanvas');
-        // used to calc canvas position relative to window
+        crop_canvas = document.getElementById('cropCanvas');
         function reOffset(){
-            var BB = canvas.getBoundingClientRect();
+            var BB = crop_canvas.getBoundingClientRect();
             offsetX = BB.left;
             offsetY = BB.top;    
         }
         reOffset();
         window.onscroll = function(e){ reOffset(); }
         window.onresize = function(e){ reOffset(); }
-        canvas.onresize = function(e){ reOffset(); }
+        crop_canvas.onresize = function(e){ reOffset(); }
     }, []);
 
-
+    // 處理圖片旋轉
     useEffect(() => {
         if (file === null) { return; }
-        const imageCanvas = document.getElementById('imageCanvas');
-        const ctx1 = imageCanvas.getContext('2d');
-        const crop1 = document.getElementById('crop'); // 取得原始圖片
-        imageCanvas.width = 1200;
-        imageCanvas.height = 1200;
-        cw = imageCanvas.width;
-        ch = imageCanvas.height;
+        const process_rotate_canvas = document.getElementById('processRotateCanvas');
+        const process_rotate_canvas_context = process_rotate_canvas.getContext('2d');
+        const initial_image = document.getElementById('initialImage'); // 取得原始圖片
+        process_rotate_canvas.width = 1200;
+        process_rotate_canvas.height = 1200;
+        crop_canvas_width = process_rotate_canvas.width;
+        crop_canvas_height = process_rotate_canvas.height;
 
         // 讓圖片可以按原比例呈現
-        const ratio = crop1.width / crop1.height;
-        var width, height;
-        if (ratio >= 1) {
-            width = cw;
-            height = ch / ratio;
+        const crop_image_ratio = initial_image.width / initial_image.height;
+        var width = crop_canvas_width;
+        var height = crop_canvas_height;
+        if (crop_image_ratio >= 1) {
+            height = height / crop_image_ratio;
         } else {
-            width = cw * ratio;
-            height = ch;
+            width = height * crop_image_ratio;
         }
-        const offsetX = (cw / 2) - (width / 2);
-        const offsetY = (cw / 2) - (height / 2);
+        const offsetX = (crop_canvas_width / 2) - (width / 2);
+        const offsetY = (crop_canvas_width / 2) - (height / 2);
 
         // 將圖片旋轉
-        ctx1.save();
-        ctx1.translate(imageCanvas.width / 2, imageCanvas.height / 2);
-        ctx1.rotate(rotate * Math.PI / 180);
-        ctx1.translate(-(imageCanvas.width / 2), -(imageCanvas.height / 2));
-        // ctx1.drawImage(crop1, 0, 0, imageCanvas.width, imageCanvas.height);
-        ctx1.drawImage(crop1, 0, 0, crop1.width, crop1.height, 
-            offsetX, offsetY, width, height);
-        ctx1.restore();
+        process_rotate_canvas_context.save();
+        process_rotate_canvas_context.translate(process_rotate_canvas.width / 2, process_rotate_canvas.height / 2);
+        process_rotate_canvas_context.rotate(rotate * Math.PI / 180);
+        process_rotate_canvas_context.translate(-(process_rotate_canvas.width / 2), -(process_rotate_canvas.height / 2));
+        process_rotate_canvas_context.drawImage(initial_image, 0, 0, initial_image.width, initial_image.height, offsetX, offsetY, width, height);
+        process_rotate_canvas_context.restore();
 
         // 旋轉後的原始圖片
-        const crop2 = document.getElementById('crop2');
-        crop2.src = imageCanvas.toDataURL('image/png');
+        const rotated_photo = document.getElementById('rotatedPhoto');
+        rotated_photo.src = process_rotate_canvas.toDataURL('image/png');
     }, [file, rotate]);
 
     useEffect(() => {
-        canvas = document.getElementById('cropCanvas');
-        ctx = canvas.getContext("2d");
-        canvas.width = 1200;
-        canvas.height = 1200;
-        cw = canvas.width;
-        ch = canvas.height;
-        // https://riptutorial.com/html5-canvas/example/18918/dragging-circles---rectangles-around-the-canvas
-        // 解決：canvas圖片模糊
-        // https://blog.csdn.net/felicity_zll/article/details/109193602
+        crop_canvas = document.getElementById('cropCanvas');
+        crop_canvas_context = crop_canvas.getContext("2d");
+        crop_canvas.width = 1200;
+        crop_canvas.height = 1200;
+        crop_canvas_width = crop_canvas.width;
+        crop_canvas_height = crop_canvas.height;
 
         // // 設定預設背景
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, cw, ch);
-        // load the image
-        const img = document.getElementById('crop2');
-        var photo = new Image();
-        photo.onload=function(){
+        crop_canvas_context.fillStyle = "rgba(0, 0, 0, 0.5)";
+        crop_canvas_context.fillRect(0, 0, crop_canvas_width, crop_canvas_height);
+        
+        // 讀取圖片
+        const rotated_photo = document.getElementById('rotatedPhoto');
+        var temp_photo = new Image();
+        temp_photo.onload=function(){
 
-            const iWidth = img.width;
-            const iHeight = img.height;
+            const rotated_photo_width = rotated_photo.width;
+            const rotated_photo_height = rotated_photo.height;
             
-            shape = {x: x, y: y, width: iWidth, height: iHeight, image: photo, rotate: rotate, size: size};
+            crop_image_parameters = {x: x, y: y, width: rotated_photo_width, height: rotated_photo_height, imageFile: temp_photo, rotate: rotate, size: size};
             
             drawAll();
-            // listen for mouse events
-            canvas.onmousedown=handleMouseDown;
-            canvas.onmousemove=handleMouseMove;
-            canvas.onmouseup=handleMouseUp;
-            canvas.onmouseout=handleMouseOut;
-            canvas.onmousewheel=handleMouseWheel;
+            // 圖片處理事件
+            crop_canvas.onmousedown=handleMouseDown;
+            crop_canvas.onmousemove=handleMouseMove;
+            crop_canvas.onmouseup=handleMouseUp;
+            crop_canvas.onmouseout=handleMouseOut;
+            crop_canvas.onmousewheel=handleMouseWheel;
         };
         // put your image src here!
-        photo.src = img.src;
+        temp_photo.src = rotated_photo.src;
     
     }, [file, rotate, size])
     
     function drawAll(){
         // 重設畫布
-        ctx.clearRect(0,0,cw,ch);
+        crop_canvas_context.clearRect(0,0,crop_canvas_width,crop_canvas_height);
 
-        // 繪製圖形
-        const ratio = shape.width / shape.height;
-                
         // 讓圖片可以按原比例呈現
-        var width, height;
-        if (ratio >= 1) {
-            width = cw * shape.size;
-            height = ch * shape.size / ratio;
+        var crop_image_width, crop_image_height;
+        const crop_image_ratio = crop_image_parameters.width / crop_image_parameters.height;
+        if (crop_image_ratio >= 1) {
+            crop_image_width = crop_canvas_width * crop_image_parameters.size;
+            crop_image_height = crop_canvas_height * crop_image_parameters.size / crop_image_ratio;
         } else {
-            width = cw * shape.size * ratio;
-            height = ch * shape.size; 
+            crop_image_width = crop_canvas_width * crop_image_parameters.size * crop_image_ratio;
+            crop_image_height = crop_canvas_height * crop_image_parameters.size; 
         }
-        const offsetX = (cw / 2) - (width / 2);
-        const offsetY = (cw / 2) - (height / 2);
-        ctx.drawImage(shape.image, 0, 0, shape.width, shape.height, 
-            shape.x + offsetX, shape.y + offsetY, width, height);
+        const offsetX = (crop_canvas_width / 2) - (crop_image_width / 2);
+        const offsetY = (crop_canvas_width / 2) - (crop_image_height / 2);
+        crop_canvas_context.drawImage(crop_image_parameters.imageFile, 0, 0, crop_image_parameters.width, crop_image_parameters.height, 
+            crop_image_parameters.x + offsetX, crop_image_parameters.y + offsetY, crop_image_width, crop_image_height);
         // 更新預覽畫面
         updatePreview();
         
         // 放上遮罩圖
-        const mask = document.getElementById('mask');
-        ctx.globalAlpha = 0.7; // 設定透明度為 0.7
-        ctx.drawImage(mask, 0, 0, cw, ch);
-
-        ctx.globalAlpha = 1; // 設定透明度為 1
+        const maskImage = document.getElementById('maskImage');
+        crop_canvas_context.globalAlpha = 0.7; // 設定透明度為 0.7
+        crop_canvas_context.drawImage(maskImage, 0, 0, crop_canvas_width, crop_canvas_height);
+        crop_canvas_context.globalAlpha = 1; // 設定透明度為 1
     }
 
     function handleMouseWheel(e) {
-        if (!shape.image) { return; }
+        if (!crop_image_parameters.imageFile) { return; }
         // 取消原事件處理
         e.preventDefault();
         e.stopPropagation();
 
+        // 設定圖片縮放比例最大為 3.0 倍最小為 0.5 倍，每次調整 0.1 倍
         const max = 3.0;
         const step = 0.1;
         const min = 0.5;
@@ -159,10 +150,12 @@ const Crop = props => {
         handleChangeSize(value);
     }
     
+    // 處理圖片大小修改
     function handleChangeSize(value) {
-        dispatch(Set({size: value}));
+        dispatch(SetData({size: value}));
     }
 
+    // 處理圖片拖動（滑鼠按下）
     function handleMouseDown(e){
         // 取消原事件處理
         e.preventDefault();
@@ -171,88 +164,71 @@ const Crop = props => {
         startX=parseInt(e.clientX-offsetX);
         startY=parseInt(e.clientY-offsetY);
 
-        if (shape.image) {
+        if (crop_image_parameters.imageFile) {
             // 當鼠標在畫布中，設置為正在拖動
-            isDragging=true;
+            is_dragging=true;
             return;
         }
 
     }
-    
+    // 處理圖片拖動（滑鼠移動）
     function handleMouseMove(e){
         // 如果不是在畫布中就取消處理
-        if(!isDragging){return;}
+        if(!is_dragging){return;}
         // 取消原事件處理
         e.preventDefault();
         e.stopPropagation();
         // 計算目前鼠標位置
         var mouseX=parseInt(e.clientX-offsetX);
         var mouseY=parseInt(e.clientY-offsetY);
-        // how far has the mouse dragged from its previous mousemove position?
+        // 計算鼠標移動距離
         var dx=mouseX-startX;
         var dy=mouseY-startY;
 
+        // 移動畫布圖片
         handlePositionChange({x: dx, y: dy});
-        shape.x+=dx;
-        shape.y+=dy;
+        crop_image_parameters.x+=dx;
+        crop_image_parameters.y+=dy;
         
         drawAll();
-        // update the starting drag position (== the current mouse position)
+        // 更新鼠標位置
         startX=mouseX;
         startY=mouseY;
     }
+    // 更新圖片所在位置
     function handlePositionChange(data) {
-        dispatch(Increment(data));
+        dispatch(PositionOffest(data));
     }
 
+    // 處理圖片拖動（滑鼠放開）
     function handleMouseUp(e){
         // 如果不是在畫布中就取消處理
-        if(!isDragging){return;}
+        if(!is_dragging){return;}
         // 取消原事件處理
         e.preventDefault();
         e.stopPropagation();
         // 放開滑鼠，結束拖動事件
-        isDragging=false;
+        is_dragging=false;
     }
 
+    // 處理圖片拖動（滑鼠放開）
     function handleMouseOut(e){
         // 如果不是在畫布中就取消處理
-        if(!isDragging){return;}
+        if(!is_dragging){return;}
         // 取消原事件處理
         e.preventDefault();
         e.stopPropagation();
         // 放開滑鼠，結束拖動事件
-        isDragging=false;
+        is_dragging=false;
     }
 
     return ( <>
         <div style={{width: '100%', height: '100%'}}>
-            <img
-            id="crop"
-            alt=""
-            src={`${file}`}
-            hidden
-            />
-            <img
-            id="mask"
-            alt=""
-            src="./crop/face_outline_outside.png"
-            hidden
-            />
-            <canvas
-            id="cropCanvas" 
-            style={{width: '100%', height: '100%'}}
-            {...props}
-            />
-            <canvas
-            id="imageCanvas" 
-            hidden
-            />
-            <img
-            id="crop2"
-            alt=""
-            hidden
-            />
+            <img id="initialImage" alt="" src={`${file}`} hidden />
+            <canvas id="processRotateCanvas" hidden />
+            <img id="rotatedPhoto" alt="" hidden />
+            <canvas id="cropCanvas" style={{width: '100%', height: '100%'}} />
+            <img id="maskImage" alt="" src="./photo-crop/crop/face_outline_outside.png" hidden />
         </div>
     </>);
 }

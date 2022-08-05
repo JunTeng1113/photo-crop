@@ -1,16 +1,9 @@
-import {
-  Routes,
-  Route,
-  useNavigationType,
-  useLocation,
-} from "react-router-dom";
+import { Routes, Route, useNavigationType, Link } from "react-router-dom";
 import { PhotoCrop } from "./components/PhotoCrop";
 import { useEffect } from "react";
 
 function App() {
   const action = useNavigationType();
-  const location = useLocation();
-  const pathname = location.pathname;
 
   useEffect(() => {
     if (action !== "POP") {
@@ -20,6 +13,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<Link to="/crop/:userID">Goto PhotoCrop</Link>} />
       <Route path="/crop/:userID" element={<PhotoCrop />} />
     </Routes>
   );

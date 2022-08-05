@@ -14,6 +14,7 @@ import {
 
 const theme = createTheme();
 
+
 ReactDOM.render(
   <HashRouter basename="/">
     <StyledEngineProvider injectFirst>

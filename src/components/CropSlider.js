@@ -1,9 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import Slider from '@mui/material/Slider';
-import styles from "../css/PhotoCrop.module.css";
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { Set } from "../actions/Set.js";
+import { useSelector, useDispatch } from 'react-redux';
+import { SetData } from "../actions/SetData.js";
 
 const marks = [
     {
@@ -30,10 +28,10 @@ const CropSlider = props => {
     const size = data?.size;
 
     function handleChangeSize(value) {
-        dispatch(Set({size: value}));
+        dispatch(SetData({size: value}));
     }
 
-    return ( <>
+    return (<>
         <Slider
             defaultValue={1.0}
             step={0.1}

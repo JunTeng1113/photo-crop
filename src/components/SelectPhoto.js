@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { useDispatch } from 'react-redux';
 import styles from "../css/PhotoCrop.module.css";
-import { Set } from "../actions/Set.js";
+import { SetData } from "../actions/SetData.js";
 function SelectPhoto(props) {
     const dispatch = useDispatch();
     // Select Photo
@@ -10,25 +10,16 @@ function SelectPhoto(props) {
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function () {
-            dispatch(Set({file: reader.result}))
+            dispatch(SetData({file: reader.result}))
         };
         reader.onerror = function (error) {
             console.log('Error: ', error);
         };
     }
     return (
-        <Button
-            className={styles.button}
-            variant="outlined"
-            component="label"
-        >
+        <Button className={styles.button} variant="outlined" component="label" >
             Select Photo
-            <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleOnChange(e)}
-            hidden
-            />
+            <input type="file" accept="image/*" onChange={(e) => handleOnChange(e)} hidden />
         </Button>
     )
 }
