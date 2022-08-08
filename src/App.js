@@ -1,4 +1,5 @@
-import { Routes, Route, useNavigationType, Link } from "react-router-dom";
+import { Routes, Route, useNavigationType } from "react-router-dom";
+import { IndexPage } from "./components/IndexPage";
 import { PhotoCrop } from "./components/PhotoCrop";
 import { useEffect } from "react";
 
@@ -13,7 +14,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Link to="/crop/1">Goto PhotoCrop</Link>} />
+      <Route path="/" element={<IndexPage />} />
       <Route path="/crop/:userID" element={<PhotoCrop />} />
     </Routes>
   );

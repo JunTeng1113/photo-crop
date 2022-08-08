@@ -36,7 +36,8 @@ function Upload(props) {
         })
         .then(response => {
             // 從回傳值取得圖片，顯示圖片
-            document.getElementById('personalImage').src = response['photo_url'];
+            localStorage.setItem('editedFace', response['photo_url']);
+            document.getElementById('personalImage').src = localStorage.getItem('editedFace');
         })
         .catch(error => {
             console.error(error)
