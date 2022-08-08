@@ -39,7 +39,7 @@ const Preview = props => {
 
     return (<>
         <canvas id="previewCanvas" style={{width: '100%', height: '100%'}} />
-        <img id="mask2" alt="" src="./photo-crop/crop/face_outline_inside.png" hidden />
+        <img id="mask2" alt="" src="./crop/face_outline_inside.png" hidden />
     </>)
 }
 export default Preview;

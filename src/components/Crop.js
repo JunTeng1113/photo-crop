@@ -228,7 +228,7 @@ const Crop = props => {
             <canvas id="processRotateCanvas" hidden />
             <img id="rotatedPhoto" alt="" hidden />
             <canvas id="cropCanvas" style={{width: '100%', height: '100%'}} />
-            <img id="maskImage" alt="" src="./photo-crop/crop/face_outline_outside.png" hidden />
+            <img id="maskImage" alt="" src="./crop/face_outline_outside.png" hidden />
         </div>
     </>);
 }
