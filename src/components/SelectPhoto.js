@@ -15,7 +15,9 @@ function SelectPhoto(props) {
         reader.onerror = function (error) {
             console.log('Error: ', error);
         };
+
     }
+
     return (
         <Button className={styles.button} variant="outlined" component="label" >
             Select Photo

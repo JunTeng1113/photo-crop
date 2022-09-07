@@ -1,3 +1,6 @@
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { SetData } from "../actions/SetData.js";
 export default function getCropImage(originalImage) {
     const canvas = document.getElementById('workCanvas');
     canvas.width = 1200;
@@ -17,6 +20,7 @@ export default function getCropImage(originalImage) {
             img[i] = new Image()
             img[i].src = mulitImg[i]
             img[i].onload = function(){
+                img[i].setAttribute("crossOrigin", "Anonymous");
                 //第i張加載完成
                 resolve(img[i])
             }
@@ -29,6 +33,17 @@ export default function getCropImage(originalImage) {
 
         context.globalCompositeOperation = "destination-out";
         context.drawImage(img[1], 0, 0);
-        // document.getElementById('workpoint').appendChild(canvas);
+
+        const resultImg = canvas.toDataURL('image/png');
+        // localStorage.setItem('resultImg', resultImg);
+        useDispatch(SetData({resultImg: resultImg}));
+
+        // 沒有結果！！
+        const newImg = new Image();
+        newImg.onload = function() {
+            document.getElementById('workpoint').appendChild(newImg);
+        }
+        newImg.src = useSelector(state => state.reducer)?.resultImg;
+        
     })
 }
